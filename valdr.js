@@ -1,5 +1,5 @@
 /**
- * valdr - v1.1.3 - 2015-06-22
+ * valdr - v1.1.3 - 2015-07-30
  * https://github.com/netceteragroup/valdr
  * Copyright (c) 2015 Netcetera AG
  * License: MIT
@@ -700,7 +700,7 @@ angular.module('valdr')
  */
 var valdrFormGroupDirectiveDefinition =
   ['valdrClasses', 'valdrConfig', function (valdrClasses, valdrConfig) {
-    return  {
+    return {
       restrict: 'EA',
       link: function (scope, element) {
         if (valdrConfig.addFormGroupClass) {
@@ -793,7 +793,9 @@ var valdrFormGroupDirectiveDefinition =
         };
 
         this.removeMessageElement = function (ngModelController) {
-          messageElements[ngModelController.$name].remove();
+          if (messageElements[ngModelController.$name]) {
+            messageElements[ngModelController.$name].remove();
+          }
         };
 
       }]
@@ -802,6 +804,7 @@ var valdrFormGroupDirectiveDefinition =
 
 angular.module('valdr')
   .directive('valdrFormGroup', valdrFormGroupDirectiveDefinition);
+
 angular.module('valdr')
 
 /**
