@@ -1,7 +1,7 @@
 /**
- * valdr - v1.1.3 - 2015-07-30
- * https://github.com/netceteragroup/valdr
- * Copyright (c) 2015 Netcetera AG
+ * valdr-softwarecraftsmen - v1.1.3 - 2015-07-30
+ * https://github.com/softwarecraftsmen/valdr
+ * Copyright (c) 2015 Software Craftsmen GmbH
  * License: MIT
  */
 (function (window, document) {

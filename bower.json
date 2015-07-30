@@ -1,4 +1,7 @@
 {
-  "name": "valdr",
-  "main": ["./valdr.js", "./valdr-message.js"]
+  "name": "valdr-softwarecraftsmen",
+  "main": [
+    "./valdr.js",
+    "./valdr-message.js"
+  ]
 }
