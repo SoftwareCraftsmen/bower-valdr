@@ -1,5 +1,5 @@
 /**
- * valdr-softwarecraftsmen - v1.1.3 - 2015-07-30
+ * valdr-softwarecraftsmen - v1.1.3 - 2015-12-09
  * https://github.com/softwarecraftsmen/valdr
  * Copyright (c) 2015 Software Craftsmen GmbH
  * License: MIT
@@ -234,6 +234,27 @@ angular.module('valdr')
        */
       validate: function (value) {
         return valdrUtil.isEmpty(value) || EMAIL_REGEXP.test(value);
+      }
+    };
+  }]);
+
+angular.module('valdr')
+
+  .factory('valdrEqualsFieldValidator', [function () {
+
+    return {
+      name: 'equalsField',
+
+      /**
+       * Checks if the matches another fields value.
+       *
+       * @param value the value to validate
+       * @param constraint the constraint paramters
+       * @param formValues the whole form
+       * @returns {boolean} true if valid
+       */
+      validate: function (value, constraint, formValues) {
+        return (value === formValues[constraint.field]) || (!value && !formValues[constraint.field]);
       }
     };
   }]);
@@ -627,9 +648,10 @@ angular.module('valdr')
              * @param typeName the type name
              * @param fieldName the field name
              * @param value the value to validate
+             * @param formValues the whole form
              * @returns {*}
              */
-            validate: function (typeName, fieldName, value) {
+            validate: function (typeName, fieldName, value, formValues) {
 
               var validResult = { valid: true },
                 typeConstraints = constraintsForType(typeName);
@@ -649,7 +671,7 @@ angular.module('valdr')
                     return validResult;
                   }
 
-                  var valid = validator.validate(value, constraint);
+                  var valid = validator.validate(value, constraint, formValues);
                   var validationResult = {
                     valid: valid,
                     value: value,
@@ -693,6 +715,7 @@ angular.module('valdr')
           };
         }];
   });
+
 /**
  * This directive adds the validity state to a form group element surrounding valdr validated input fields.
  * If valdr-messages is loaded, it also adds the validation messages as last element to the element this this
@@ -812,12 +835,30 @@ angular.module('valdr')
  * The directive exposes the type through the controller to allow access to it by wrapped directives.
  */
   .directive('valdrType', function () {
-    return  {
+    return {
       priority: 1,
       controller: ['$attrs', function ($attrs) {
 
+        var fields = {};
+
         this.getType = function () {
           return $attrs.valdrType;
+        };
+
+        this.getValue = function (fieldName) {
+          return fields[fieldName]();
+        };
+
+        this.getValues = function () {
+          var result = {};
+          angular.forEach(fields, function(field, name) {
+            result[name] = field();
+          });
+          return result;
+        };
+
+        this.registerField = function(name, field) {
+          fields[name] = field;
         };
 
       }]
@@ -876,6 +917,10 @@ var valdrFormItemDirectiveDefinitionFactory = function (restrict) {
             throw new Error('Form element with ID "' + attrs.id + '" is not bound to a field name.');
           }
 
+          valdrTypeController.registerField(fieldName, function () {
+            return ngModelController.$modelValue;
+          });
+
           var updateNgModelController = function (validationResult) {
 
             if (valdrEnabled.isEnabled()) {
@@ -909,7 +954,7 @@ var valdrFormItemDirectiveDefinitionFactory = function (restrict) {
           };
 
           var validate = function (modelValue) {
-            var validationResult = valdr.validate(valdrTypeController.getType(), fieldName, modelValue);
+            var validationResult = valdr.validate(valdrTypeController.getType(), fieldName, modelValue, valdrTypeController.getValues());
             updateNgModelController(validationResult);
             return valdrEnabled.isEnabled() ? validationResult.valid : true;
           };
